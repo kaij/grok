@@ -57,15 +57,18 @@
 #ifndef OPJ_MQC_INL_H
 #define OPJ_MQC_INL_H
 
+typedef struct opj_mqc_state opj_mqc_state_t;
+extern const opj_mqc_state_t mqc_states[47 * 2];
+
 /* For internal use of opj_mqc_decode_macro() */
 #define opj_mqc_mpsexchange_macro(d, curctx, a) \
 { \
     if (a < (*curctx)->qeval) { \
         d = !((*curctx)->mps); \
-        *curctx = (*curctx)->nlps; \
+        *curctx = mqc_states + (*curctx)->nlps; \
     } else { \
         d = (*curctx)->mps; \
-        *curctx = (*curctx)->nmps; \
+        *curctx = mqc_states + (*curctx)->nmps; \
     } \
 }
 
@@ -75,11 +78,11 @@
     if (a < (*curctx)->qeval) { \
         a = (*curctx)->qeval; \
         d = (*curctx)->mps; \
-        *curctx = (*curctx)->nmps; \
+        *curctx = mqc_states + (*curctx)->nmps; \
     } else { \
         a = (*curctx)->qeval; \
         d = !((*curctx)->mps); \
-        *curctx = (*curctx)->nlps; \
+        *curctx = mqc_states + (*curctx)->nlps; \
     } \
 }
 

@@ -64,9 +64,9 @@ typedef struct opj_mqc_state {
     /** the Most Probable Symbol (0 or 1) */
     uint8_t mps : 1;
     /** next state if the next encoded symbol is the MPS */
-    const struct opj_mqc_state *nmps;
+    uint8_t nmps;
     /** next state if the next encoded symbol is the LPS */
-    const struct opj_mqc_state *nlps;
+    uint8_t nlps;
 } opj_mqc_state_t;
 
 #define MQC_NUMCTXS 19
