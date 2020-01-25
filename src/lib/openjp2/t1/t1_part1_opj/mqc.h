@@ -60,9 +60,9 @@
 #include "opj_common.h"
 typedef struct opj_mqc_state {
     /** the probability of the Least Probable Symbol (0.75->0x8000, 1.5->0xffff) */
-    uint32_t qeval;
+	uint16_t qeval;
     /** the Most Probable Symbol (0 or 1) */
-    uint32_t mps;
+    uint8_t mps : 1;
     /** next state if the next encoded symbol is the MPS */
     const struct opj_mqc_state *nmps;
     /** next state if the next encoded symbol is the LPS */
@@ -74,11 +74,11 @@ typedef struct opj_mqc {
     /** temporary buffer where bits are coded or decoded */
     uint32_t c;
     /** only used by MQ decoder */
-    uint32_t a;
+    uint16_t a;
     /** number of bits already read or free to write */
-    uint32_t ct;
+    uint8_t ct : 4;
     /* only used by decoder, to count the number of times a terminating 0xFF >0x8F marker is read */
-    uint32_t end_of_byte_stream_counter;
+    uint16_t end_of_byte_stream_counter;
     /** pointer to the current position in the buffer */
     uint8_t *bp;
     /** pointer to the start of the buffer */

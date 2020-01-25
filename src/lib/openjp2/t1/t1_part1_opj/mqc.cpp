@@ -299,7 +299,7 @@ void opj_mqc_flush(opj_mqc_t *mqc)
     }
 }
 
-#define BYPASS_CT_INIT  0xDEADBEEF
+#define BYPASS_CT_INIT  0xF
 
 void opj_mqc_bypass_init_enc(opj_mqc_t *mqc)
 {
