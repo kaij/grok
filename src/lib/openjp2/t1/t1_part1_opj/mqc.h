@@ -76,7 +76,7 @@ typedef struct opj_mqc {
     /** only used by MQ decoder */
     uint16_t a;
     /** number of bits already read or free to write */
-    uint8_t ct : 4;
+    uint8_t ct;
     /* only used by decoder, to count the number of times a terminating 0xFF >0x8F marker is read */
     uint16_t end_of_byte_stream_counter;
     /** pointer to the current position in the buffer */
@@ -86,9 +86,9 @@ typedef struct opj_mqc {
     /** pointer to the end of the buffer */
     uint8_t *end;
     /** Array of contexts */
-    const opj_mqc_state_t *ctxs[MQC_NUMCTXS];
+    uint8_t ctxs[MQC_NUMCTXS];
     /** Active context */
-    const opj_mqc_state_t **curctx;
+    uint8_t *curctx;
     /* lut_ctxno_zc shifted by (1 << 9) * bandno */
     const uint8_t* lut_ctxno_zc_orient;
     /** Original value of the 2 bytes at end[0] and end[1] */

@@ -63,26 +63,28 @@ extern const opj_mqc_state_t mqc_states[47 * 2];
 /* For internal use of opj_mqc_decode_macro() */
 #define opj_mqc_mpsexchange_macro(d, curctx, a) \
 { \
-    if (a < (*curctx)->qeval) { \
-        d = !((*curctx)->mps); \
-        *curctx = mqc_states + (*curctx)->nlps; \
+	auto state = (mqc_states + *curctx); \
+    if (a < state->qeval) { \
+        d = !state->mps; \
+        *curctx = state->nlps; \
     } else { \
-        d = (*curctx)->mps; \
-        *curctx = mqc_states + (*curctx)->nmps; \
+        d = state->mps; \
+        *curctx = state->nmps; \
     } \
 }
 
 /* For internal use of opj_mqc_decode_macro() */
 #define opj_mqc_lpsexchange_macro(d, curctx, a) \
 { \
-    if (a < (*curctx)->qeval) { \
-        a = (*curctx)->qeval; \
-        d = (*curctx)->mps; \
-        *curctx = mqc_states + (*curctx)->nmps; \
+	auto state = (mqc_states + *curctx); \
+    if (a < state->qeval) { \
+        a = state->qeval; \
+        d = state->mps; \
+        *curctx = state->nmps; \
     } else { \
-        a = (*curctx)->qeval; \
-        d = !((*curctx)->mps); \
-        *curctx = mqc_states + (*curctx)->nlps; \
+        a = state->qeval; \
+        d = !(state->mps); \
+        *curctx = state->nlps; \
     } \
 }
 
@@ -162,23 +164,24 @@ static INLINE uint32_t opj_mqc_raw_decode(opj_mqc_t *mqc)
     /* Note: alternate "J.2 - Decoding an MPS or an LPS in the */ \
     /* software-conventions decoder" has been tried, but does not bring any */ \
     /* improvement. See https://github.com/uclouvain/openjpeg/issues/921 */ \
-    a -= (*curctx)->qeval;  \
-    if ((c >> 16) < (*curctx)->qeval) {  \
+	auto state = (mqc_states + *curctx); \
+    a = (uint16_t)(a - state->qeval);  \
+    if ((c >> 16) < state->qeval) {  \
         opj_mqc_lpsexchange_macro(d, curctx, a);  \
         opj_mqc_renormd_macro(mqc, a, c, ct);  \
     } else {  \
-        c -= (*curctx)->qeval << 16;  \
+        c -= state->qeval << 16;  \
         if ((a & 0x8000) == 0) { \
             opj_mqc_mpsexchange_macro(d, curctx, a); \
             opj_mqc_renormd_macro(mqc, a, c, ct); \
         } else { \
-            d = (*curctx)->mps; \
+            d = state->mps; \
         } \
     } \
 }
 
 #define DOWNLOAD_MQC_VARIABLES(mqc, curctx, c, a, ct) \
-        register const opj_mqc_state_t **curctx = mqc->curctx; \
+        register uint8_t *curctx = mqc->curctx; \
         register uint32_t c = mqc->c; \
         register uint32_t a = mqc->a; \
         register uint32_t ct = mqc->ct

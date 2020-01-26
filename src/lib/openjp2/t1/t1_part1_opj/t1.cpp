@@ -87,7 +87,7 @@ static INLINE int32_t opj_int_floorlog2(int32_t a)
 
 #include "t1_luts.h"
 #define T1_FLAGS(x, y) (t1->flags[x + 1 + ((y / 4) + 1) * (t1->w+2)])
-#define opj_t1_setcurctx(curctx, ctxno)  curctx = &(mqc)->ctxs[(uint32_t)(ctxno)]
+#define opj_t1_setcurctx(curctx, ctxno)  curctx = ((mqc)->ctxs + (ctxno))
 
 static INLINE uint8_t opj_t1_getctxno_zc(opj_mqc_t *mqc, uint32_t f);
 static INLINE uint32_t opj_t1_getctxno_mag(uint32_t f);

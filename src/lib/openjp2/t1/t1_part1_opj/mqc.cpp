@@ -207,29 +207,31 @@ static void opj_mqc_renorme(opj_mqc_t *mqc)
 
 static void opj_mqc_codemps(opj_mqc_t *mqc)
 {
-    mqc->a -= (*mqc->curctx)->qeval;
+	auto state = (mqc_states + (*mqc->curctx));
+    mqc->a -=  state->qeval;
     if ((mqc->a & 0x8000) == 0) {
-        if (mqc->a < (*mqc->curctx)->qeval) {
-            mqc->a = (*mqc->curctx)->qeval;
+        if (mqc->a < state->qeval) {
+            mqc->a = state->qeval;
         } else {
-            mqc->c += (*mqc->curctx)->qeval;
+            mqc->c += state->qeval;
         }
-        *mqc->curctx = mqc_states +(*mqc->curctx)->nmps;
+        *mqc->curctx = state->nmps;
         opj_mqc_renorme(mqc);
     } else {
-        mqc->c += (*mqc->curctx)->qeval;
+        mqc->c += state->qeval;
     }
 }
 
 static void opj_mqc_codelps(opj_mqc_t *mqc)
 {
-    mqc->a -= (*mqc->curctx)->qeval;
-    if (mqc->a < (*mqc->curctx)->qeval) {
-        mqc->c += (*mqc->curctx)->qeval;
+	auto state = (mqc_states + (*mqc->curctx));
+    mqc->a -= state->qeval;
+    if (mqc->a < state->qeval) {
+        mqc->c += state->qeval;
     } else {
-        mqc->a = (*mqc->curctx)->qeval;
+        mqc->a = state->qeval;
     }
-    *mqc->curctx = mqc_states + (*mqc->curctx)->nlps;
+    *mqc->curctx = state->nlps;
     opj_mqc_renorme(mqc);
 }
 
@@ -275,7 +277,7 @@ void opj_mqc_init_enc(opj_mqc_t *mqc, uint8_t *bp)
 
 void opj_mqc_encode(opj_mqc_t *mqc, uint32_t d)
 {
-    if ((*mqc->curctx)->mps == d) {
+    if ((mqc_states + (*mqc->curctx))->mps == d) {
         opj_mqc_codemps(mqc);
     } else {
         opj_mqc_codelps(mqc);
@@ -495,12 +497,12 @@ void opj_mqc_resetstates(opj_mqc_t *mqc)
 {
     uint32_t i;
     for (i = 0; i < MQC_NUMCTXS; i++) {
-        mqc->ctxs[i] = mqc_states;
+        mqc->ctxs[i] = 0;
     }
 }
 
 void opj_mqc_setstate(opj_mqc_t *mqc, uint32_t ctxno, uint32_t msb,
                       int32_t prob)
 {
-    mqc->ctxs[ctxno] = &mqc_states[msb + (uint32_t)(prob << 1)];
+    mqc->ctxs[ctxno] = msb + (uint32_t)(prob << 1);
 }
