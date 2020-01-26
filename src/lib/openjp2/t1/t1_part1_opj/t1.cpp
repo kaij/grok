@@ -98,7 +98,7 @@ static INLINE void opj_t1_update_flags(opj_flag_t *flagsp, uint32_t ci,
 static INLINE void opj_t1_dec_sigpass_step_raw(opj_t1_t *t1, opj_flag_t *flagsp,
 		int32_t *datap, int32_t oneplushalf, uint32_t vsc, uint32_t row);
 static INLINE void opj_t1_dec_sigpass_step_mqc(opj_t1_t *t1, opj_flag_t *flagsp,
-		int32_t *datap, int32_t oneplushalf, uint32_t row,
+		int32_t *datap, int32_t oneplushalf, uint8_t ci,
 		uint32_t flags_stride, uint32_t vsc);
 
 static void opj_t1_enc_sigpass(opj_t1_t *t1, int32_t bpno, int32_t *nmsedec,
@@ -113,7 +113,7 @@ static INLINE void opj_t1_dec_refpass_step_raw(opj_t1_t *t1, opj_flag_t *flagsp,
 static INLINE void opj_t1_dec_refpass_step_mqc(opj_t1_t *t1, opj_flag_t *flagsp,
 		int32_t *datap, int32_t poshalf, uint32_t row);
 static void opj_t1_dec_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
-		int32_t *datap, int32_t oneplushalf, uint32_t row, uint32_t vsc);
+		int32_t *datap, int32_t oneplushalf, uint8_t row, uint32_t vsc);
 static void opj_t1_enc_clnpass(opj_t1_t *t1, int32_t bpno, int32_t *nmsedec,
 		uint32_t cblksty);
 static bool opj_t1_code_block_enc_allocate(opj_tcd_cblk_enc_t *
@@ -164,7 +164,7 @@ static INLINE uint8_t opj_t1_getctxno_zc(opj_mqc_t *mqc, uint32_t f) {
 }
 
 static INLINE uint8_t opj_t1_getctxtno_sc_or_spb_index(uint32_t fX,
-		uint32_t pfX, uint32_t nfX, uint32_t ci) {
+		uint32_t pfX, uint32_t nfX, uint8_t ci) {
 	/*
 	 0 pfX T1_CHI_THIS           T1_LUT_SGN_W
 	 1 tfX T1_SIGMA_1            T1_LUT_SIG_N
@@ -200,7 +200,7 @@ static INLINE uint32_t opj_t1_getctxno_mag(uint32_t f) {
 	uint32_t tmp2 = (f & T1_MU_0) ? T1_CTXNO_MAG + 2 : tmp;
 	return tmp2;
 }
-static INLINE uint8_t opj_t1_getspb(uint32_t lu) {
+static INLINE uint8_t opj_t1_getspb(uint8_t lu) {
 	return lut_spb[lu];
 }
 static int16_t opj_t1_getnmsedec_sig(uint32_t x, uint32_t bitpos) {
@@ -326,12 +326,12 @@ static INLINE void opj_t1_dec_sigpass_step_raw(opj_t1_t *t1, opj_flag_t *flagsp,
         opj_t1_setcurctx(curctx, ctxt1); \
         opj_mqc_decode_macro(v, mqc, curctx, a, c, ct); \
         if (v) { \
-            uint32_t lu = opj_t1_getctxtno_sc_or_spb_index( \
+            uint8_t lu = opj_t1_getctxtno_sc_or_spb_index( \
                                 flags, \
                                 flagsp[-1], flagsp[1], \
                                 ci); \
-            uint32_t ctxt2 = opj_t1_getctxno_sc(lu); \
-            uint32_t spb = opj_t1_getspb(lu); \
+            uint8_t ctxt2 = opj_t1_getctxno_sc(lu); \
+            uint8_t spb = opj_t1_getspb(lu); \
             opj_t1_setcurctx(curctx, ctxt2); \
             opj_mqc_decode_macro(v, mqc, curctx, a, c, ct); \
             v = v ^ spb; \
@@ -343,7 +343,7 @@ static INLINE void opj_t1_dec_sigpass_step_raw(opj_t1_t *t1, opj_flag_t *flagsp,
 }
 
 static INLINE void opj_t1_dec_sigpass_step_mqc(opj_t1_t *t1, opj_flag_t *flagsp,
-		int32_t *datap, int32_t oneplushalf, uint32_t ci,
+		int32_t *datap, int32_t oneplushalf, uint8_t ci,
 		uint32_t flags_stride, uint32_t vsc) {
 	uint32_t v;
 
@@ -410,7 +410,7 @@ static void opj_t1_enc_sigpass(opj_t1_t *t1, int32_t bpno, int32_t *nmsedec,
 			for (j = k; j < t1->h; ++j) {
 				opj_t1_enc_sigpass_step(t1, f,
 						&t1->data[(j * t1->data_stride) + i], bpno, one,
-						nmsedec, type, j - k,
+						nmsedec, type, (uint8_t)(j - k),
 						(j == k && (cblksty & J2K_CCP_CBLKSTY_VSC) != 0));
 			}
 			++f;
@@ -464,7 +464,8 @@ static void opj_t1_dec_sigpass_raw(opj_t1_t *t1, int32_t bpno,
 #define opj_t1_dec_sigpass_mqc_internal(t1, bpno, vsc, w, h, flags_stride) \
 { \
         int32_t one, half, oneplushalf; \
-        uint32_t i, j, k; \
+        uint32_t i, k; \
+        uint8_t j; \
         register int32_t *data = t1->data; \
         register opj_flag_t *flagsp = &t1->flags[(flags_stride) + 1]; \
         const uint32_t l_w = w; \
@@ -769,9 +770,9 @@ static void opj_t1_dec_refpass_mqc(opj_t1_t *t1, int32_t bpno) {
 
 static void opj_t1_enc_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 		int32_t *datap, int32_t bpno, int32_t one, int32_t *nmsedec,
-		uint32_t agg, uint32_t runlen, uint32_t lim, uint32_t cblksty) {
-	uint32_t v;
-	uint32_t ci;
+		uint32_t agg, uint8_t runlen, uint8_t lim, uint32_t cblksty) {
+	uint8_t v;
+	uint8_t ci;
 	opj_mqc_t *mqc = &(t1->mqc); /* MQC component */
 
 	const uint32_t check = (T1_SIGMA_4 | T1_SIGMA_7 | T1_SIGMA_10
@@ -811,8 +812,8 @@ static void opj_t1_enc_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 			v = (opj_int_abs(*datap) & one) ? 1 : 0;
 			opj_mqc_encode(mqc, v);
 			if (v) {
-				uint32_t ctxt2, spb;
-				uint32_t lu;
+				uint8_t ctxt2, spb;
+				uint8_t lu;
 				LABEL_PARTIAL: lu = opj_t1_getctxtno_sc_or_spb_index(*flagsp,
 						flagsp[-1], flagsp[1], ci);
 				*nmsedec += opj_t1_getnmsedec_sig(
@@ -823,7 +824,7 @@ static void opj_t1_enc_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 #endif
 				opj_mqc_setcurctx(mqc, ctxt2);
 
-				v = *datap < 0 ? 1U : 0U;
+				v = !!(*datap < 0);
 				spb = opj_t1_getspb(lu);
 #ifdef DEBUG_ENC_CLN
                 printf("   spb=%d\n", spb);
@@ -853,7 +854,7 @@ static void opj_t1_enc_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
                     break; \
             } \
             { \
-                uint32_t lu = opj_t1_getctxtno_sc_or_spb_index( \
+                uint8_t lu = opj_t1_getctxtno_sc_or_spb_index( \
                                     flags, flagsp[-1], flagsp[1], \
                                     ci); \
                 opj_t1_setcurctx(curctx, opj_t1_getctxno_sc(lu)); \
@@ -867,7 +868,7 @@ static void opj_t1_enc_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 }
 
 static void opj_t1_dec_clnpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
-		int32_t *datap, int32_t oneplushalf, uint32_t ci, uint32_t vsc) {
+		int32_t *datap, int32_t oneplushalf, uint8_t ci, uint32_t vsc) {
 	uint32_t v;
 
 	opj_mqc_t *mqc = &(t1->mqc); /* MQC component */
@@ -880,7 +881,7 @@ static void opj_t1_enc_clnpass(opj_t1_t *t1, int32_t bpno, int32_t *nmsedec,
 		uint32_t cblksty) {
 	uint32_t i, k;
 	const int32_t one = 1 << (bpno + T1_NMSEDEC_FRACBITS);
-	uint32_t agg, runlen;
+	uint8_t agg, runlen;
 
 	opj_mqc_t *mqc = &(t1->mqc); /* MQC component */
 
@@ -937,7 +938,7 @@ static void opj_t1_enc_clnpass(opj_t1_t *t1, int32_t bpno, int32_t *nmsedec,
 #endif
 			opj_t1_enc_clnpass_step(t1, &T1_FLAGS(i, k),
 					&t1->data[((k + runlen) * t1->data_stride) + i], bpno, one,
-					nmsedec, agg, runlen, t1->h - k, cblksty);
+					nmsedec, agg, runlen, (uint8_t)(t1->h - k), cblksty);
 		}
 	}
 }
@@ -946,7 +947,8 @@ static void opj_t1_enc_clnpass(opj_t1_t *t1, int32_t bpno, int32_t *nmsedec,
 { \
     int32_t one, half, oneplushalf; \
     uint32_t runlen; \
-    uint32_t i, j, k; \
+    uint32_t i, k; \
+    uint8_t j; \
     const uint32_t l_w = w; \
     opj_mqc_t* mqc = &(t1->mqc); \
     register int32_t *data = t1->data; \
