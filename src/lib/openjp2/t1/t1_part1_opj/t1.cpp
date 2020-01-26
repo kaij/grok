@@ -163,7 +163,7 @@ static INLINE uint8_t opj_t1_getctxno_zc(opj_mqc_t *mqc, uint32_t f) {
 	return mqc->lut_ctxno_zc_orient[(f & T1_SIGMA_NEIGHBOURS)];
 }
 
-static INLINE uint32_t opj_t1_getctxtno_sc_or_spb_index(uint32_t fX,
+static INLINE uint8_t opj_t1_getctxtno_sc_or_spb_index(uint32_t fX,
 		uint32_t pfX, uint32_t nfX, uint32_t ci) {
 	/*
 	 0 pfX T1_CHI_THIS           T1_LUT_SGN_W
@@ -176,7 +176,7 @@ static INLINE uint32_t opj_t1_getctxtno_sc_or_spb_index(uint32_t fX,
 	 7 tfX T1_SIGMA_7            T1_LUT_SIG_S
 	 */
 
-	uint32_t lu = (fX >> (ci * 3U)) & (T1_SIGMA_1 | T1_SIGMA_3 | T1_SIGMA_5 |
+	uint8_t lu = (fX >> (ci * 3U)) & (T1_SIGMA_1 | T1_SIGMA_3 | T1_SIGMA_5 |
 	T1_SIGMA_7);
 
 	lu |= (pfX >> (T1_CHI_THIS_I + (ci * 3U))) & (1U << 0);
@@ -273,9 +273,9 @@ static INLINE void opj_t1_enc_sigpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 			opj_mqc_encode(mqc, v);
 		}
 		if (v) {
-			uint32_t lu = opj_t1_getctxtno_sc_or_spb_index(*flagsp,
+			uint8_t lu = opj_t1_getctxtno_sc_or_spb_index(*flagsp,
 					flagsp[-1], flagsp[1], ci);
-			uint32_t ctxt2 = opj_t1_getctxno_sc(lu);
+			uint8_t ctxt2 = opj_t1_getctxno_sc(lu);
 			v = *datap < 0 ? 1U : 0U;
 			*nmsedec += opj_t1_getnmsedec_sig((uint32_t) opj_int_abs(*datap),
 					(uint32_t) bpno);
