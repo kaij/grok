@@ -252,8 +252,8 @@ static INLINE void opj_t1_update_flags(opj_flag_t *flagsp, uint32_t ci,
 
 static INLINE void opj_t1_enc_sigpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 		int32_t *datap, int32_t bpno, int32_t one, int32_t *nmsedec,
-		uint8_t type, uint32_t ci, uint32_t vsc) {
-	uint32_t v;
+		uint8_t type, uint8_t ci, uint32_t vsc) {
+	uint8_t v;
 
 	opj_mqc_t *mqc = &(t1->mqc); /* MQC component */
 
@@ -276,7 +276,7 @@ static INLINE void opj_t1_enc_sigpass_step(opj_t1_t *t1, opj_flag_t *flagsp,
 			uint8_t lu = opj_t1_getctxtno_sc_or_spb_index(*flagsp,
 					flagsp[-1], flagsp[1], ci);
 			uint8_t ctxt2 = opj_t1_getctxno_sc(lu);
-			v = *datap < 0 ? 1U : 0U;
+			v = !!(*datap < 0);
 			*nmsedec += opj_t1_getnmsedec_sig((uint32_t) opj_int_abs(*datap),
 					(uint32_t) bpno);
 #ifdef DEBUG_ENC_SIG
