@@ -61,8 +61,6 @@
 typedef struct opj_mqc_state {
     /** the probability of the Least Probable Symbol (0.75->0x8000, 1.5->0xffff) */
 	uint16_t qeval;
-    /** the Most Probable Symbol (0 or 1) */
-    uint8_t mps : 1;
     /** next state if the next encoded symbol is the MPS */
     uint8_t nmps;
     /** next state if the next encoded symbol is the LPS */
