@@ -201,7 +201,7 @@ static INLINE uint32_t opj_t1_getctxno_mag(uint32_t f) {
 	return tmp2;
 }
 static INLINE uint8_t opj_t1_getspb(uint8_t lu) {
-	return lut_spb[lu];
+	return (lut_spb[(lu >> 3)] >> (lu & 7))&1;
 }
 static int16_t opj_t1_getnmsedec_sig(uint32_t x, uint32_t bitpos) {
 	if (bitpos > 0) {

@@ -257,16 +257,24 @@ int main(int argc, char **argv)
     printf("0x%x\n};\n\n", t1_init_ctxno_sc(255));
 
     /* lut_spb */
-    printf("static const uint8_t lut_spb[256] = {\n    ");
-    for (i = 0; i < 255; ++i) {
-        printf("%i,", t1_init_spb(i));
-        if (!((i + 1) & 0x1f)) {
-            printf("\n    ");
-        } else {
-            printf(" ");
-        }
+    printf("static const uint8_t lut_spb[64] = {\n    ");
+    for (i = 0; i < 64; i++) {
+    	uint8_t ret = 0;;
+    	for (j = 0; j < 8; ++j) {
+    		ret |= (t1_init_spb((i<<3)+j) << j);
+    	}
+    	if (i == 63) {
+    	    printf("0x%02x\n};\n\n", ret);
+    	}
+    	else {
+    		printf("0x%02x, ", ret);
+			if (!((i + 1) & 0x7)) {
+				printf("\n    ");
+			} else {
+				printf(" ");
+			}
+    	}
     }
-    printf("%i\n};\n\n", t1_init_spb(255));
 
     /* FIXME FIXME FIXME */
     /* fprintf(stdout,"nmsedec luts:\n"); */
