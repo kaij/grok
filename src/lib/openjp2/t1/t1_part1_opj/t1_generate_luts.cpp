@@ -222,20 +222,20 @@ int main(int argc, char **argv)
 
     /* lut_ctxno_zc */
     for (j = 0; j < 4; ++j) {
-        for (i = 0; i < 512; ++i) {
-            uint32_t orient = j;
-            if (orient == 2) {
-                orient = 1;
-            } else if (orient == 1) {
-                orient = 2;
-            }
+        uint32_t orient = j;
+        if (orient == 2) {
+            orient = 1;
+        } else if (orient == 1) {
+            orient = 2;
+        }
+    	for (i = 0; i < 512; ++i) {
             lut_ctxno_zc[(orient << 9) | i] = t1_init_ctxno_zc(i, j);
         }
     }
 
     printf("static const uint8_t lut_ctxno_zc[2048] = {\n    ");
     for (i = 0; i < 2047; ++i) {
-        printf("%i,", lut_ctxno_zc[i]);
+        printf("0x%02i,", lut_ctxno_zc[i]);
         if (!((i + 1) & 0x1f)) {
             printf("\n    ");
         } else {
