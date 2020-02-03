@@ -42,10 +42,10 @@ using namespace std;
 #include "opj_includes.h"
 
 
-static int t1_init_ctxno_zc(uint32_t f, uint32_t orient)
+static uint8_t t1_init_ctxno_zc(uint32_t f, uint32_t orient)
 {
-    int h, v, d, n, t, hv;
-    n = 0;
+    int h, v, d, t, hv;
+    uint8_t n = 0;
     h = ((f & T1_SIGMA_3) != 0) + ((f & T1_SIGMA_5) != 0);
     v = ((f & T1_SIGMA_1) != 0) + ((f & T1_SIGMA_7) != 0);
     d = ((f & T1_SIGMA_0) != 0) + ((f & T1_SIGMA_2) != 0) + ((
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     unsigned int i, j;
     double u, v, t;
 
-    int lut_ctxno_zc[2048];
+    uint8_t lut_ctxno_zc[1024];
     int lut_nmsedec_sig[1 << T1_NMSEDEC_BITS];
     int lut_nmsedec_sig0[1 << T1_NMSEDEC_BITS];
     int lut_nmsedec_ref[1 << T1_NMSEDEC_BITS];
@@ -228,21 +228,23 @@ int main(int argc, char **argv)
         } else if (orient == 1) {
             orient = 2;
         }
-    	for (i = 0; i < 512; ++i) {
-            lut_ctxno_zc[(orient << 9) | i] = t1_init_ctxno_zc(i, j);
+    	for (i = 0; i < 256; ++i) {
+    		uint8_t temp = t1_init_ctxno_zc(2*i, j) |
+    				(t1_init_ctxno_zc(2*i + 1, j) << 4);
+            lut_ctxno_zc[(orient << 8) | i] = temp;
         }
     }
 
-    printf("static const uint8_t lut_ctxno_zc[2048] = {\n    ");
-    for (i = 0; i < 2047; ++i) {
-        printf("0x%02i,", lut_ctxno_zc[i]);
+    printf("static const uint8_t lut_ctxno_zc[1024] = {\n    ");
+    for (i = 0; i < 1023; ++i) {
+        printf("0x%02x,", lut_ctxno_zc[i]);
         if (!((i + 1) & 0x1f)) {
             printf("\n    ");
         } else {
             printf(" ");
         }
     }
-    printf("%i\n};\n\n", lut_ctxno_zc[2047]);
+    printf("0x%02x\n};\n\n", lut_ctxno_zc[1023]);
 
     /* lut_ctxno_sc */
     printf("static const uint8_t lut_ctxno_sc[256] = {\n    ");

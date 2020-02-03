@@ -160,7 +160,8 @@ double opj_dwt_getnorm_real(uint32_t level, uint32_t orient)
 
 
 static INLINE uint8_t opj_t1_getctxno_zc(opj_mqc_t *mqc, uint32_t f) {
-	return mqc->lut_ctxno_zc_orient[(f & T1_SIGMA_NEIGHBOURS)];
+	auto index = f & T1_SIGMA_NEIGHBOURS;
+	return (mqc->lut_ctxno_zc_orient[index>>1] >> ((index&1) * 4)) & 0xF;
 }
 
 static INLINE uint8_t opj_t1_getctxtno_sc_or_spb_index(uint32_t fX,
@@ -1311,7 +1312,7 @@ bool opj_t1_decode_cblk(opj_t1_t *t1, opj_tcd_cblk_dec_t *cblk,
 	uint8_t type = T1_TYPE_MQ; /* BYPASS mode */
 	int32_t *original_t1_data = NULL;
 
-	mqc->lut_ctxno_zc_orient = lut_ctxno_zc + (orient << 9);
+	mqc->lut_ctxno_zc_orient = lut_ctxno_zc + (orient << 8);
 
 	if (!opj_t1_allocate_buffers(t1, (uint32_t) (cblk->x1 - cblk->x0),
 			(uint32_t) (cblk->y1 - cblk->y0))) {
@@ -1506,7 +1507,7 @@ double opj_t1_encode_cblk(opj_t1_t *t1, opj_tcd_cblk_enc_t *cblk,
            cblk->x0, cblk->y0, cblk->x1, cblk->y1, orient, compno, level);
 #endif
 
-	mqc->lut_ctxno_zc_orient = lut_ctxno_zc + (orient << 9);
+	mqc->lut_ctxno_zc_orient = lut_ctxno_zc + (orient << 8);
 	cblk->numbps = max ? (uint32_t) ((opj_int_floorlog2(max) + 1) -
 	T1_NMSEDEC_FRACBITS) :
 							0;
