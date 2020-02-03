@@ -1356,11 +1356,9 @@ bool opj_t1_decode_cblk(opj_t1_t *t1, opj_tcd_cblk_dec_t *cblk,
 				T1_TYPE_RAW : T1_TYPE_MQ;
 
 		if (type == T1_TYPE_RAW) {
-			opj_mqc_raw_init_dec(mqc, cblkdata + cblkdataindex, seg->len,
-			OPJ_COMMON_CBLK_DATA_EXTRA);
+			opj_mqc_raw_init_dec(mqc, cblkdata + cblkdataindex, seg->len);
 		} else {
-			opj_mqc_init_dec(mqc, cblkdata + cblkdataindex, seg->len,
-			OPJ_COMMON_CBLK_DATA_EXTRA);
+			opj_mqc_init_dec(mqc, cblkdata + cblkdataindex, seg->len);
 		}
 		cblkdataindex += seg->len;
 

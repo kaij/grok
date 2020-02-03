@@ -125,12 +125,8 @@ passes, so as to restore the bytes temporarily overwritten.
           So bp must be at least len + OPJ_COMMON_CBLK_DATA_EXTRA large, and
           writable.
 @param len Length of the input buffer
-@param extra_writable_bytes Indicate how many bytes after len are writable.
-                            This is to indicate your consent that bp must be
-                            large enough.
 */
-void opj_mqc_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len,
-                      uint32_t extra_writable_bytes);
+void opj_mqc_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len);
 
 /**
 Initialize the decoder for RAW decoding.
@@ -146,12 +142,8 @@ passes, so as to restore the bytes temporarily overwritten.
           So bp must be at least len + OPJ_COMMON_CBLK_DATA_EXTRA large, and
           writable.
 @param len Length of the input buffer
-@param extra_writable_bytes Indicate how many bytes after len are writable.
-                            This is to indicate your consent that bp must be
-                            large enough.
 */
-void opj_mqc_raw_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len,
-                          uint32_t extra_writable_bytes);
+void opj_mqc_raw_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len);
 
 
 /**

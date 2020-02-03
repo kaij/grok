@@ -439,12 +439,8 @@ void opj_mqc_segmark_enc(opj_mqc_t *mqc)
 
 static void opj_mqc_init_dec_common(opj_mqc_t *mqc,
                                     uint8_t *bp,
-                                    uint32_t len,
-                                    uint32_t extra_writable_bytes)
+                                    uint32_t len)
 {
-    (void)extra_writable_bytes;
-
-    assert(extra_writable_bytes >= OPJ_COMMON_CBLK_DATA_EXTRA);
     mqc->start = bp;
     mqc->end = bp + len;
     /* Insert an artificial 0xFF 0xFF marker at end of the code block */
@@ -456,15 +452,14 @@ static void opj_mqc_init_dec_common(opj_mqc_t *mqc,
     mqc->end[1] = 0xFF;
     mqc->bp = bp;
 }
-void opj_mqc_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len,
-                      uint32_t extra_writable_bytes)
+void opj_mqc_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len)
 {
     /* Implements ISO 15444-1 C.3.5 Initialization of the decoder (INITDEC) */
     /* Note: alternate "J.1 - Initialization of the software-conventions */
     /* decoder" has been tried, but does */
     /* not bring any improvement. */
     /* See https://github.com/uclouvain/openjpeg/issues/921 */
-    opj_mqc_init_dec_common(mqc, bp, len, extra_writable_bytes);
+    opj_mqc_init_dec_common(mqc, bp, len);
     opj_mqc_setcurctx(mqc, 0);
     mqc->end_of_byte_stream_counter = 0;
     if (len == 0) {
@@ -479,10 +474,9 @@ void opj_mqc_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len,
     mqc->a = 0x8000;
 }
 
-void opj_mqc_raw_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len,
-                          uint32_t extra_writable_bytes)
+void opj_mqc_raw_init_dec(opj_mqc_t *mqc, uint8_t *bp, uint32_t len)
 {
-    opj_mqc_init_dec_common(mqc, bp, len, extra_writable_bytes);
+    opj_mqc_init_dec_common(mqc, bp, len);
     mqc->c = 0;
     mqc->ct = 0;
 }
